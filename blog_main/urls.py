@@ -1,7 +1,7 @@
-from django.urls import path
-from .views import home, detail
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('detail/<int:id>/', detail, name='detail'),
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),  # aquí se delega a la app blog
 ]
