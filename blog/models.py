@@ -1,13 +1,19 @@
-class catgory(models.MOdel):
-    title = models.CharField(max_lengt=225)
+# -*- coding: utf-8 -*-
 
-    class meta:
-        ordering = ('title')
-        verbose_name_plural = 'catefories'
+from django.db import models
 
-    def _str_(self):
+# Create your models here.
+class Category(models.Model):
+    title = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ('title',)
+        verbose_name_plural = 'Categories'
+    
+    def __str__(self):
         return self.title
-   
+    
+
 class Post(models.Model):
 
     ACTIVE = 'active'
@@ -18,20 +24,23 @@ class Post(models.Model):
         (DRAFT, 'Draft')
     }
 
-    category = models.ForeignKey(category, related_name='post', on_delete=models.CASCADE)
-    tile = models.CharField(max_length=225)
+    category = models.ForeignKey(Category, related_name='posts', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
     intro = models.TextField()
     body = models.TextField()
-    crated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=CHOICES_STATUS, default=ACTIVE)
     image = models.ImageField(upload_to='upload/', blank=True, null=True)
 
     def __str__(self):
-        return self.tile
-   
-class comment(models.Model):
+        return self.title
+
+    def get_absolute_url(self):
+        return '/%s/%s/' % (self.category.slug, self.slug)
+
+class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
-    name = models.CharField(max_length=225)
+    name = models.CharField(max_length=255)
     email = models.EmailField()
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
