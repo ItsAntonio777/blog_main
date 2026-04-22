@@ -1,19 +1,19 @@
 from django.contrib import admin
-from .models import Category, Post, Comment
+from .models import Category, Post, Comment, Specification
 
-# Configuración opcional para ver más detalles de los posts en el panel
+# 1. Esta clase define CÓMO se verán las specs dentro del post
+class SpecificationInline(admin.TabularInline):
+    model = Specification
+    extra = 2  # Esto te pondrá 2 filas vacías para llenar de inmediato
+
+# 2. Esta clase le dice al Post que incluya las specs
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'status', 'created_at', 'category')
-    list_filter = ('status', 'created_at', 'category')
-    search_fields = ('title', 'body')
+    list_display = ('title', 'status', 'created_at')
+    # ESTA LÍNEA ES LA QUE FALTA EN TU IMAGEN:
+    inlines = [SpecificationInline] 
+    prepopulated_fields = {'slug': ('title',)}
 
-# Configuración para ver los comentarios de forma ordenada
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'post', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('name', 'body', 'email')
-
-# Registro de los modelos
+# 3. Registros (Asegúrate de no tener registros repetidos abajo)
 admin.site.register(Category)
 admin.site.register(Post, PostAdmin)
-admin.site.register(Comment, CommentAdmin)
+admin.site.register(Comment)

@@ -1,134 +1,88 @@
 {% extends 'blog/base.html' %}
 
-{% block title %} {{post.title}} | Blog {% endblock %}
-
 {% block content %}
-<div class="container py-5">
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-md-8">
+            
+            <h1 class="display-4 fw-bold">{{ post.title }}</h1>
+            <p class="text-muted">
+                <span class="badge bg-warning text-dark">{{ post.category.title }}</span> | 
+                Publicado el {{ post.created_at|date:"d M, Y" }}
+            </p>
 
-            <nav aria-label="breadcrumb" class="mb-4">
-                <a href="{% url 'home' %}" class="text-decoration-none text-muted small transition-all hover-link">
-                    <i class="bi bi-arrow-left"></i> Volver a publicaciones
-                </a>
-            </nav>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-fluid rounded shadow-sm mb-4" alt="{{ post.title }}">
+            {% endif %}
 
-            <article class="blog-post">
-                <header class="mb-4 text-center"> <div class="mb-3">
-                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fs-7 fw-medium">
-                            {{ post.category }}
-                        </span>
+            {% if post.specs.all %}
+            <div class="card bg-light mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">Ficha Técnica</h5>
+                    <div class="row">
+                        {% for spec in post.specs.all %}
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block small text-uppercase">{{ spec.label }}</span>
+                            <span class="fw-bold">{{ spec.value }}</span>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <h1 class="display-4 fw-extrabold mb-3 lh-sm text-dark">{{ post.title }}</h1>
-                    <div class="text-muted d-flex align-items-center gap-3 justify-content-center small">
-                        <span><i class="bi bi-calendar3 me-1"></i> {{ post.created_at|date:"d M, Y" }}</span>
-                        <span>•</span>
-                        <span><i class="bi bi-clock me-1"></i> Hace {{ post.created_at|timesince }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="post-body fs-5 mb-5" style="line-height: 1.8;">
+                {{ post.body|linebreaks }}
+            </div>
+
+            <hr class="my-5">
+
+            <h3 class="fw-bold mb-4">Comentarios ({{ post.comments.count }})</h3>
+            
+            {% for comment in post.comments.all %}
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="fw-bold mb-1 text-primary">{{ comment.name }}</h6>
+                            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                        </div>
+                        <p class="mb-0 text-dark">{{ comment.body }}</p>
                     </div>
-                </header>
-
-                <hr class="my-4 opacity-25">
-
-                {% if post.image %}
-                <div class="d-flex justify-content-center mb-5 mt-4 p-2 bg-white rounded-4 shadow-sm border">
-                    <figure class="figure m-0 text-center">
-                        <img src="{{post.image.url}}"
-                             class="figure-img img-fluid rounded-3 m-0"
-                             alt="{{post.title}}"
-                             style="max-height: 450px; width: auto; object-fit: contain;">
-                        <figcaption class="figure-caption text-center mt-2 small text-muted italic">
-                            {{ post.title }}
-                        </figcaption>
-                    </figure>
                 </div>
-                {% endif %}
-
-                <div class="lead fw-normal text-secondary mb-5 px-4 py-3 bg-light rounded-3 border-start border-4 border-primary quote-container">
-                    {{ post.intro }}
+            {% empty %}
+                <div class="alert alert-light border italic">
+                    No hay comentarios aún. ¡Sé el primero en compartir tu opinión!
                 </div>
+            {% endfor %}
 
-                <div class="post-body lh-lg fs-5 mb-5 text-dark">
-                    {{ post.body|linebreaks }}
-                </div>
-            </article>
+            <hr class="my-5">
 
-            <hr class="my-5 opacity-25">
-
-            <section id="comments">
-                <h3 class="mb-4 d-flex align-items-center fw-bold">
-                    Comentarios
-                    <span class="badge bg-light text-primary ms-2 fs-6 border">{{ post.comments.count }}</span>
-                </h3>
-
-                <form action="" method="post">
+            <div class="card border-0 bg-dark text-white p-4 mb-5">
+                <h4 class="mb-4">Deja un comentario</h4>
+                <form method="post">
                     {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        {{ form.as_p }}
+                    </div>
 
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary mb-3">
-                        Agrega Comentario
+                    <button type="submit" class="btn btn-warning fw-bold px-4">
+                        Publicar Comentario
                     </button>
                 </form>
-
-                {% for comment in post.comments.all %}
-                <div class="d-flex mb-4 p-3 rounded-3 hover-bg-light transition-all">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center border border-primary border-opacity-25"
-                             style="width: 48px; height: 48px;">
-                            <i class="bi bi-person-fill text-primary fs-4"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="p-3 bg-light rounded-3 border">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h6 class="mb-0 fw-bold text-dark">{{ comment.name }}</h6>
-                                <small class="text-muted small">Hace {{ comment.created_at|timesince }}</small>
-                            </div>
-                            <div class="text-muted small mb-2 opacity-75" style="font-size: 0.75rem;">{{ comment.email }}</div>
-                            <p class="mb-0 text-secondary" style="font-size: 0.95rem; line-height: 1.6;">
-                                {{ comment.body }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="text-center py-4 bg-light rounded-3 border border-dashed">
-                    <i class="bi bi-chat-left-dots text-muted fs-1"></i>
-                    <p class="text-muted mt-2">Sé el primero en dejar un comentario.</p>
-                </div>
-                {% endfor %}
-            </section>
+            </div>
 
         </div>
     </div>
 </div>
 
 <style>
-    /* Tipografía para lectura profesional */
-    .post-body {
-        color: #1a1a1a;
-        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-
-    .post-body p {
-        margin-bottom: 1.75rem;
-    }
-
-    /* Evitar estiramiento de imagen y mejorar calidad visual */
-    .img-fluid {
-        image-rendering: -webkit-optimize-contrast; /* Ayuda un poco en Chrome/Safari */
-        image-rendering: crisp-edges;
-    }
-
-    /* Utilidades extra */
-    .fs-7 { font-size: 0.85rem; }
-    .fw-extrabold { font-weight: 800; }
-    .transition-all { transition: all 0.3s ease-in-out; }
-    .hover-link:hover { color: var(--bs-primary) !important; transform: translateX(-3px); }
-    .hover-bg-light:hover { background-color: #f8f9fa; }
-    .border-dashed { border-style: dashed !important; }
-
-    .quote-container {
-        font-style: italic;
+    form p label { display: block; margin-top: 10px; font-weight: bold; }
+    form p input, form p textarea { 
+        width: 100%; 
+        padding: 8px; 
+        border-radius: 5px; 
+        border: 1px solid #ced4da;
     }
 </style>
 {% endblock %}
