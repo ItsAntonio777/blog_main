@@ -1,25 +1,19 @@
-# -*- coding: utf-8 -º1     *-
-
 from django.contrib import admin
-from .models import Post, Category, Comment
+from .models import Category, Post, Comment
 
-class CommentItemInline(admin.TabularInline):
-    model = Comment
-    raw_id_fields = ['post']
-
+# Configuración opcional para ver más detalles de los posts en el panel
 class PostAdmin(admin.ModelAdmin):
-    search_fields = ['title', 'intro', 'body']
-    list_display = ('title', 'category', 'created_at', 'status')
-    list_filter = ['category', 'created_at', 'status']
-    inlines = [CommentItemInline]
+    list_display = ('title', 'status', 'created_at', 'category')
+    list_filter = ('status', 'created_at', 'category')
+    search_fields = ('title', 'body')
 
-class CategoryAdmin(admin.ModelAdmin):
-    search_fields = ['title']
-    list_display = ('title', )
-
+# Configuración para ver los comentarios de forma ordenada
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'post', 'created_at', )
+    list_display = ('name', 'post', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('name', 'body', 'email')
 
-admin.site.register(Post, PostAdmin) 
-admin.site.register(Category, CategoryAdmin)
+# Registro de los modelos
+admin.site.register(Category)
+admin.site.register(Post, PostAdmin)
 admin.site.register(Comment, CommentAdmin)
