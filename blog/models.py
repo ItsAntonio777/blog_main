@@ -4,13 +4,10 @@ from django.db import models
 # 1. Categorías para organizar tus posts
 class Category(models.Model):
     title = models.CharField(max_length=255)
-    # Si tu profesor usa slugs, asegúrate de tener este campo
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True)
+    # Nuevo campo para el color (puedes poner 'yellow', 'blue', o códigos HEX)
+    color_hex = models.CharField(max_length=7, default='#FFC107') 
 
-    class Meta:
-        ordering = ('title',)
-        verbose_name_plural = 'Categories'
-    
     def __str__(self):
         return self.title
 
